@@ -7,7 +7,11 @@ USER_DB =
 
 PASSWORD_DB =
 
+#### jwt 
+
 SECRET_TOKEN = secret
+
+#### cookie
 
 COOKIE_SECRET = secret
 
@@ -22,3 +26,4 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER= 
 
 
+# npm run dev
