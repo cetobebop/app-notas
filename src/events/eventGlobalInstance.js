@@ -1,4 +1,4 @@
 import events from "events"
 
-
-export default new events.EventEmitter
+const myEmitter = new events.EventEmitter
+export default myEmitter

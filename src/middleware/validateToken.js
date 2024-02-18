@@ -2,11 +2,11 @@ import { verify } from "../utils/jwt.js";
 
 export function validateToken (req,res,next){
 
-    const {x_access_token} = req.signedCookies;
+    const {x_access_token} = req.headers;
  
     try {
         const decoded = verify(x_access_token)
-   
+        
         req.userId = decoded.id
 
         next()

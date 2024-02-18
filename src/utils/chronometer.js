@@ -11,18 +11,15 @@ async function action() {
 
   try {
     const notes = await Notes.find({active: true}, { alertIn: 1, userId: 1 }).lean();
-    console.log("ejecutando")
     if (notes.length) {
-      for (const note in notes) { 
 
-        
+      for (const note in notes) { 
       
         const diff = moment(notes[note].alertIn).diff(now, "ms");
         
         if(diff <= 180000 && diff >= 0 && !dates.includes(notes[note]._id.toString())){
             dates.push(notes[note]._id.toString())
             
-
             setTimeout(()=>{  
 
                 emiters.finished_note(notes[note]._id.toString(), notes[note].userId.toString())

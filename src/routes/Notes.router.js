@@ -5,6 +5,10 @@ import _ from "../middleware/index.js";
 
 const router = Router()
 
+router.get("/note_event/:_id", (req,res)=> {
+    NotesControllers.notesSSE(req,res)
+})
+
 router.use((req,res,next)=>{
     _.validateToken(req,res,next)
 })
@@ -13,17 +17,13 @@ router.post("/note", (req,res) => {
     NotesControllers.createNote(req,res)
 })
 
-router.get("/note", (req,res)=> {
+router.post("/getnote", (req,res)=> {
     NotesControllers.getNotes(req,res)
 })
 
-router.get("/notetext", (req,res)=> {
-    NotesControllers.getTextNotes(req,res)
-})
-
-router.get("/note_event", (req,res)=> {
-    NotesControllers.notesSSE(req,res)
-})
+// router.get("/notetext", (req,res)=> {
+//     NotesControllers.getTextNotes(req,res)
+// })
 
 router.use('/note/:_id',(req,res,next)=>{
     _.validateParams(req,res,next)

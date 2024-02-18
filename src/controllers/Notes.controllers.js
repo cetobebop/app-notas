@@ -1,13 +1,24 @@
 import moment from "moment";
+import { config } from "dotenv";
+
 import Notes from "../models/Notes.js";
 import listeners from "../events/listeners.js";
 import { validateId } from "../utils/validateId.js";
 import app from "../app.js";
 
+
+
+import eventGlobalInstance from "../events/eventGlobalInstance.js";
+
+config()
+
+
 class NotasControllers {
   async createNote(req, res) {
     const { title, alertIn, message, tag } = req.body;
     const { userId } = req;
+
+    
 
     const errors = this.validateBody(req);
 
@@ -26,6 +37,7 @@ class NotasControllers {
       tag,
     }).save();
 
+
     return res.json({
       status: "success",
       newNote,
@@ -33,12 +45,14 @@ class NotasControllers {
   }
 
 
-  async getTextNotes(req, res) {
-    const { skip = 0, limit = 10 } = req.query;
-    const {text} = req.body
-    const { userId } = req;
 
+  async getNotes(req, res) {
+    const { skip = 0, limit = 10 } = req.query;
+    const { tags = app.locals.tagsId, text } = req.body;
+    const { userId } = req;
+    
     const errors = this.validateQuery(req);
+    errors.push(...this.validateTags(req), ...this.validateText(req))
     
 
     if (errors.length) {
@@ -47,19 +61,24 @@ class NotasControllers {
         errors,
       });
     }
+    
 
     try {
-      const queryNotasTotal = Notes.find({ userId });
-      const queryNotas = Notes.find({ userId, $text: {$search: text} });
+
+      const filter = text ? {userId, $text: {$search: text}} : {userId, tag: {$in: tags}}
+      
+      const config = {
+        skip: parseInt(skip, 10),
+        limit: parseInt(limit, 10),
+        lean: true,
+        sort: "-createdAt"
+      }
+
+      const queryNotasTotal = Notes.find(filter);
+      const queryNotas = Notes.find(filter,{},config);
        
-      const totalNotes = await queryNotasTotal.countDocuments();
-      const notes = await queryNotas
-        .setOptions({
-          skip: parseInt(skip, 10),
-          limit: parseInt(limit, 10),
-          lean: true,
-        })
-        .exec();
+      const totalNotes = await queryNotasTotal.countDocuments()
+      const notes = await queryNotas.exec();
 
       return res.json({
         status: "success",
@@ -67,46 +86,7 @@ class NotasControllers {
         totalNotes,
       });
     } catch (error) {
-      return res.status(500).json({
-        status: "error",
-      });
-    }
-  }
-
-  async getNotes(req, res) {
-    const { skip = 0, limit = 10 } = req.query;
-    const { tags = app.locals.tagsId } = req.body;
-    const { userId } = req;
-
-    const errors = this.validateQuery(req);
-    errors.push(...this.validateTags(req))
-
-    if (errors.length) {
-      return res.status(400).json({
-        status: "error",
-        errors,
-      });
-    }
-
-    try {
-      const queryNotasTotal = Notes.find({ userId });
-      const queryNotas = Notes.find({ userId });
-       
-      const totalNotes = await queryNotasTotal.countDocuments();
-      const notes = await queryNotas
-        .setOptions({
-          skip: parseInt(skip, 10),
-          limit: parseInt(limit, 10),
-          lean: true,
-        }).in("tag", tags)
-        .exec();
-
-      return res.json({
-        status: "success",
-        notes,
-        totalNotes,
-      });
-    } catch (error) {
+      console.log(error)
       return res.status(500).json({
         status: "error",
       });
@@ -203,28 +183,42 @@ class NotasControllers {
   }
 
   notesSSE(req, res) {
-    res.writeHead(200, {
-      "Content-Type": "text/event-stream",
-      Connection: "keep-alive",
-      "Cache-Control": "no-cache",
+
+    const {_id} = req.params;
+
+    const error = validateId(_id, "_id") 
+
+    const myListener = listeners.listener(res, _id)
+
+    if(error.length){
+      console.log("error pajuo")
+      return res.end("OK")
+    }
+  
+    console.log("acertaste")
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Access-Control-Allow-Origin', '*')
+
+    eventGlobalInstance.on("finished_note"+_id, myListener)    
+
+    req.on("close", () => { 
+   
+      eventGlobalInstance.removeListener("finished_note"+_id, myListener)
+      res.end("OK")
     });
-
-    listeners.finished_note(res, req.userId);
-
-    req.on("close", () => res.end("OK"));
   }
 
   validateQuery(req) {
     const { skip = 0, limit = 10 } = req.query;
     const errors = [];
 
-    if (typeof parseInt(skip, 10) !== "number")
+    if (isNaN(parseInt(skip, 10)))
       errors.push({
         field: "skip",
         msg: "is not a number",
       });
 
-    if (typeof parseInt(limit, 10) !== "number")
+    if (isNaN(parseInt(limit, 10)))
       errors.push({
         field: "limit",
         msg: "is not a number",
@@ -251,6 +245,28 @@ class NotasControllers {
       });
 
     return errors;
+  }
+
+  validateText(req) {
+    const {text} = req.body
+    const errors = []
+
+    if(text){
+      if(!typeof text === "string"){
+        errors.push({
+          field: "text",
+          msg: "is not a string"
+        })
+      }
+      else if(text.length >= 60){
+        errors.push({
+          field: "text",
+          msg: "invalid length"
+        })
+      }
+    }
+
+    return errors
   }
 
   validateBody(req) {

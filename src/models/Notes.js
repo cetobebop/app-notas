@@ -32,7 +32,7 @@ const notasSchema = new Schema({
     }
 
 
-})
+}, {timestamps: true})
 
 notasSchema.index({title: "text", message: "text"})
 

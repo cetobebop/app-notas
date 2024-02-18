@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import regExp from "../utils/regExp.js";
-import { getToken } from "../utils/jwt.js"
+import { getToken, getRefreshToken } from "../utils/jwt.js"
 
 class AuthControllers {
 
@@ -27,13 +27,17 @@ class AuthControllers {
 
         const newUser = await User({userEmail, password, messageEmail: userEmail}).save()
         
-        const token = getToken(newUser._id);
+        const {token} = getToken(newUser._id) 
 
-        return res.cookie("x_access_token", token, {httpOnly: true, signed: true}).json({
+        getRefreshToken(newUser._id, res);
+
+        return res.json({
             status: "success",
             token,
+            id: newUser._id
         })
     }
+
 
 
     async login(req,res){
@@ -51,7 +55,7 @@ class AuthControllers {
         const user = await User.findOne({userEmail})
         
 
-        if(!user) return res.status(400).json({
+        if(!user) return res.status(404).json({
             status: "error",
             errors: [{field: "userEmail",
                     msg: "not exist"}]
@@ -65,15 +69,24 @@ class AuthControllers {
                     msg: "invalid password"}]
         })
 
-        
-        const token = getToken(user._id);
+        const {token} = getToken(user._id) 
+
+        getRefreshToken(user._id, res);
 
 
-        return res.cookie("x_access_token", token, {httpOnly: true, signed: true}).json({
+        return res.json({
             status: "success",
-            token
+            token,
+            id: user._id
+      
         })
 
+    }
+
+    logout(res){
+        return res.clearCookie('refreshToken').json({
+            status: "success"
+        });
     }
 
     validate(req){

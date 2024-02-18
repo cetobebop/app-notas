@@ -22,6 +22,7 @@ app.use("/api/auth", routes.AuthRouter)
 app.use("/api/notes", routes.NotesRouter)
 app.use("/api/users", routes.UserRouter)
 app.use("/api/tags", routes.TagsRouter)
+app.use("/api/notifications", routes.NotificationRouter)
 
 export default app;
 

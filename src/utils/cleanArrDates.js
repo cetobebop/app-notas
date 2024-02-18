@@ -14,7 +14,7 @@ async function cleanDates() {
 
 }
 
-const time = "00 10 * * *";
+const time = "*/1 * * * *";
 
 export default {
   cleanDates,
