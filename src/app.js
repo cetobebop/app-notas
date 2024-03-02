@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors"
 
+import whiteList from "./utils/whiteList.js";
 import routes from "./routes/index.js"
 
 config()
@@ -10,7 +11,14 @@ config()
 const app = express()
 
 app.use(cors({
-    origin: "http://localhost:9000",
+    origin: function (origin, callback) {
+        if(whiteList.includes(origin)){
+            
+            
+            return callback(null, origin)
+        }
+        return callback("Error CORS: Dominio " + origin + " no permitido")
+    },
     optionsSuccessStatus: 200,
     credentials: true
 }))
