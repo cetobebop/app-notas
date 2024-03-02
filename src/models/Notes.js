@@ -12,7 +12,7 @@ const notasSchema = new Schema({
     },
     title: {
         type: String,
-        default: "Sin Titulo"
+        default: "Sin Título"
     },
     alertIn: {  
         type: Date,
@@ -20,7 +20,7 @@ const notasSchema = new Schema({
     },
     message: {
         type: String,
-        default: "No definido"
+        default: "Sin descripción"
     },
     active: {
         type: Boolean,

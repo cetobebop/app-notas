@@ -20,9 +20,13 @@ async function action() {
         if(diff <= 180000 && diff >= 0 && !dates.includes(notes[note]._id.toString())){
             dates.push(notes[note]._id.toString())
             
-            setTimeout(()=>{  
+            setTimeout(async ()=>{  
 
+              if(await Notes.findById(notes[note]._id).lean()){
                 emiters.finished_note(notes[note]._id.toString(), notes[note].userId.toString())
+              }
+
+              
 
                   
             },diff)

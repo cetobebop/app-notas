@@ -15,7 +15,7 @@ config()
 
 class NotasControllers {
   async createNote(req, res) {
-    const { title, alertIn, message, tag } = req.body;
+    const { title = "Sin título", alertIn, message = "Sin descripción", tag } = req.body;
     const { userId } = req;
 
     
@@ -145,9 +145,9 @@ class NotasControllers {
 
   async updateNote(req, res) {
     const { _id } = req.params;
-    const { title, alertIn, message } = req.body;
+    const {title = "Sin título", alertIn, message = "Sin descripción"} = req.body;
 
-    const errors = this.validateBody(req);
+    const errors = this.validateBody(req, true);
 
     if (errors.length) {
       return res.status(400).json({
@@ -269,8 +269,8 @@ class NotasControllers {
     return errors
   }
 
-  validateBody(req) {
-    const { title, alertIn, message, tag, tags } = req.body;
+  validateBody(req, isUpdate) {
+    const { title = "Sin título", alertIn, message = "Sin Descripción", tag } = req.body;
     const errors = [];
 
     if (title) {
@@ -284,7 +284,13 @@ class NotasControllers {
           field: "title",
           msg: "length is more than fifty",
         });
-    } else if (!title)
+        else if (!title.trim())
+        errors.push({
+          field: "title",
+          msg: "is empty",
+        });
+    } 
+    else if (!title)
       errors.push({
         field: "title",
         msg: "is required",
@@ -306,7 +312,7 @@ class NotasControllers {
           field: "alertIn",
           msg: "invalid date",
         });
-      else if (!moment(alertIn.replace(",", " ")).isAfter(moment()))
+      else if (!moment(alertIn.replace(",", " ")).isAfter(moment()) && !isUpdate)
         errors.push({
           field: "alertIn",
           msg: "late time",
@@ -328,7 +334,13 @@ class NotasControllers {
           field: "message",
           msg: "length is more than one hundred",
         });
-    } else if (!message)
+        else if (!message.trim())
+        errors.push({
+          field: "message",
+          msg: "is empty",
+        });
+    } 
+    else if (!message)
       errors.push({
         field: "message",
         msg: "is required",
