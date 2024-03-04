@@ -4,6 +4,8 @@ export const requireRefreshToken = (req,res,next) => {
 
     try {
         const {refreshToken} = req.cookies;
+
+        console.log(refreshToken, " refreshToken recibido")
         
         if(!refreshToken) throw Error("Token not exist")
 

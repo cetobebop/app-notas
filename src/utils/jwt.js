@@ -30,6 +30,8 @@ export const getRefreshToken = (id, res) => {
 
         const refreshToken = jwt.sign({id}, SECRET_REFRESH_TOKEN, {expiresIn})
 
+        console.log(refreshToken, " refreshToken recien creado y enviado")
+
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             sameSite: false,
