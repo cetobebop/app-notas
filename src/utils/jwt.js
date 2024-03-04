@@ -32,6 +32,7 @@ export const getRefreshToken = (id, res) => {
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
+            sameSite: false,
             secure: !(process.env.MODO === "developer"),
             expires: new Date(Date.now() + expiresIn * 1000)
         })
