@@ -13,7 +13,10 @@ export const requireRefreshToken = (req,res,next) => {
 
         next()
     } catch (error) {
+
         error = error.message
+
+        console.log(error)
         return res.status(401).json(
            { 
             status: "error",
