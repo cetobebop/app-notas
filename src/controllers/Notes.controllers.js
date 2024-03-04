@@ -123,9 +123,9 @@ class NotasControllers {
     const { _id } = req.params;
 
     try {
-      const deleteNote = await Notes.findByIdAndDelete(_id);
+      const noteDelete = await Notes.findByIdAndDelete(_id);
 
-      if (!deleteNote) {
+      if (!noteDelete) {
         return res.status(404).json({
           status: "not found",
           msg: "note not exist",
