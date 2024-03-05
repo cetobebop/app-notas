@@ -10,7 +10,7 @@ async function cleanDates() {
       { active: false }
     );
 
-    console.log("status de notas cambiados");
+    
 
 }
 

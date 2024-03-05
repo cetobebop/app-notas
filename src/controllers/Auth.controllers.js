@@ -29,10 +29,11 @@ class AuthControllers {
         
         const {token} = getToken(newUser._id) 
 
-        getRefreshToken(newUser._id, res);
+        const refreshToken = getRefreshToken(newUser._id, res);
 
         return res.json({
             status: "success",
+            refreshToken,
             token,
             id: newUser._id
         })
@@ -43,6 +44,7 @@ class AuthControllers {
     async login(req,res){
         const {password, userEmail} = req.body;
 
+    
         const errors = this.validate(req)
 
         if(errors.length){
@@ -71,11 +73,12 @@ class AuthControllers {
 
         const {token} = getToken(user._id) 
 
-        getRefreshToken(user._id, res);
+        const refreshToken = getRefreshToken(user._id, res);
 
 
         return res.json({
             status: "success",
+            refreshToken,
             token,
             id: user._id
       

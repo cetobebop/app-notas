@@ -279,7 +279,7 @@ class NotasControllers {
           field: "title",
           msg: "is not a string",
         });
-      else if (title.length >= 50)
+      else if (title.length > 50)
         errors.push({
           field: "title",
           msg: "length is more than fifty",
@@ -329,7 +329,7 @@ class NotasControllers {
           field: "message",
           msg: "is not a string",
         });
-      else if (message.length >= 100)
+      else if (message.length > 100)
         errors.push({
           field: "message",
           msg: "length is more than one hundred",

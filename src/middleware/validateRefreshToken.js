@@ -3,13 +3,11 @@ import jwt from "jsonwebtoken";
 export const requireRefreshToken = (req,res,next) => {
 
     try {
-        const {refreshToken} = req.cookies;
-
-        console.log(refreshToken, " refreshToken recibido")
+        const { refreshtoken} = req.headers;
         
-        if(!refreshToken) throw Error("Token not exist")
+        if(!refreshtoken) throw Error("Token not exist")
 
-        const decoded = jwt.verify(refreshToken, process.env.SECRET_REFRESH_TOKEN)
+        const decoded = jwt.verify(refreshtoken, process.env.SECRET_REFRESH_TOKEN)
 
         req.id = decoded.id
 
@@ -24,8 +22,8 @@ export const requireRefreshToken = (req,res,next) => {
             status: "error",
             errors:[
                 {
-                    field: "refreshToken",
-                    msg: "invalid"
+                    field: "refreshtoken",
+                    msg: error
                 }
             ]
         }

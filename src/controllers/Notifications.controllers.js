@@ -33,8 +33,6 @@ class NotificationsControllers {
 
         const {idNotes} = singletonNotification
 
-        console.log(idNotes.length, " longitud")
-
         return res.json({
             status: "success",
             notificationLength: idNotes.length
